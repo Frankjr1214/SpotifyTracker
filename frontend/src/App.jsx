@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Link } from "react-router";
 import Home from "./pages/Home";
-import TopTracks from "./pages/Tracks";
-import TopArtists from "./pages/Artists";
-
+import Tracks from "./pages/Tracks";
+import Artists from "./pages/Artists";
+import Callback from "./pages/Callback";
 
 function App() {
   return (
@@ -18,6 +18,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/tracks" element={<Tracks  />} />
         <Route path="/artists" element={<Artists />} />
+        <Route path="/callback" element={<Callback />} />
       </Routes>
     </div>
   );
