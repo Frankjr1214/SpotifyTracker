@@ -10,7 +10,7 @@ function Callback() {
     async function exchangeCodeForToken() {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get("code");
-      if (hasRun.current) return; // ← block second run
+      if (hasRun.current) return; 
       hasRun.current = true;
 
       if (!code) {
@@ -39,7 +39,6 @@ function Callback() {
           return;
         }
 
-        // Store tokens
         localStorage.setItem("spotify_access_token", data.access_token);
         localStorage.setItem("spotify_refresh_token", data.refresh_token);
         localStorage.setItem(

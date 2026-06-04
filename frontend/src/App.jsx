@@ -8,7 +8,7 @@ import Callback from "./pages/Callback";
 function App() {
   return (
     <div>
-      <nav>
+      <nav style={{ background: '#0a0a0a', borderBottom: '1px solid #1f1f1f', padding: '8px 16px' }}>
         <Link to="/">Home</Link> |{" "}
         <Link to="/tracks">Top Tracks</Link> |{" "}
         <Link to="/artists">Top Artists</Link>
