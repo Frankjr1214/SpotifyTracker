@@ -1,6 +1,6 @@
 # Spotify Tracker
 
-A personal Spotify dashboard that displays your top tracks and artists in a Billboard chart-inspired UI. Built with a React/TypeScript frontend and a FastAPI Python backend.
+A personal Spotify dashboard that displays your top tracks and artists in a Billboard chart-inspired UI, with an AI-powered music chat feature that generates playlists from natural language prompts. Built with a React frontend and a FastAPI Python backend.
 
 ---
 
@@ -11,6 +11,7 @@ A personal Spotify dashboard that displays your top tracks and artists in a Bill
 - **Top Artists** — your top 100 most listened-to artists ranked with genre tags and popularity scores
 - **Time range toggle** — filter charts by This Month (4 weeks), 6 Months, or All Time
 - **User profile** — displays your Spotify display name, avatar, follower count, and country on the home page
+- **AI Music Chat** — describe a vibe in natural language and get a playlist back. Claude recommends specific tracks, retrieves them via Spotify search, and responds conversationally. Supports follow-up requests to refine the playlist
 - **Billboard aesthetic** — dark theme with Spotify green accents, editorial typography, and hover animations
 
 ---
@@ -27,6 +28,7 @@ A personal Spotify dashboard that displays your top tracks and artists in a Bill
 - FastAPI
 - httpx (async HTTP client)
 - python-dotenv
+- anthropic (Anthropic Python SDK)
 
 ---
 
@@ -35,19 +37,25 @@ A personal Spotify dashboard that displays your top tracks and artists in a Bill
 ```
 SpotifyTracker/
 ├── backend/
-│   ├── main.py          # FastAPI app — handles token exchange with Spotify
-│   └── .env             # Backend environment variables (not committed)
+│   ├── chatbot/
+│   │   ├── __init__.py      # Package init
+│   │   ├── claude.py        # Anthropic API calls (track recommendations + response generation)
+│   │   ├── spotify.py       # Spotify search wrapper (Client Credentials flow)
+│   │   └── models.py        # Pydantic models for chat requests
+│   ├── main.py              # FastAPI app — OAuth token exchange + /chat endpoint
+│   └── .env                 # Backend environment variables (not committed)
 ├── frontend/
 │   ├── src/
 │   │   ├── pages/
 │   │   │   ├── Home.jsx       # Landing page with user profile and chart links
 │   │   │   ├── Tracks.jsx     # Top 100 tracks chart
 │   │   │   ├── Artists.jsx    # Top 100 artists chart
+│   │   │   ├── Chat.jsx       # AI music chat interface
 │   │   │   └── Callback.jsx   # Handles OAuth redirect and token exchange
 │   │   ├── App.jsx            # Router and nav
 │   │   ├── main.jsx           # React entry point
 │   │   └── index.css          # Global styles
-│   └── .env             # Frontend environment variables (not committed)
+│   └── .env                   # Frontend environment variables (not committed)
 └── README.md
 ```
 
@@ -60,6 +68,7 @@ SpotifyTracker/
 - Python 3.10+
 - Node.js 18+
 - A [Spotify Developer](https://developer.spotify.com/dashboard) account and app
+- An [Anthropic](https://console.anthropic.com) account with API credits
 
 ### 1. Clone the repository
 
@@ -84,7 +93,7 @@ python -m venv .venv
 # or
 source .venv/bin/activate       # Mac/Linux
 
-pip install fastapi uvicorn httpx python-dotenv
+pip install -r requirements.txt
 ```
 
 Create a `.env` file inside the `backend/` folder:
@@ -93,6 +102,7 @@ Create a `.env` file inside the `backend/` folder:
 SPOTIFY_CLIENT_ID=your_client_id_here
 SPOTIFY_CLIENT_SECRET=your_client_secret_here
 SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
 ```
 
 ### 4. Frontend setup
@@ -147,6 +157,19 @@ The client secret never touches the frontend — all token exchange happens serv
 
 ---
 
+## How the AI Chat Works
+
+1. User types a natural language prompt ("something chill for late night coding")
+2. The frontend sends the message and conversation history to the `/chat` endpoint
+3. Claude receives the prompt and recommends 12-15 specific tracks as structured JSON
+4. The backend searches Spotify for each track — any that aren't found are silently skipped
+5. Claude receives the found tracks and writes a short conversational response describing the playlist
+6. The frontend renders Claude's reply and the track cards with album art linking to Spotify
+
+Conversation history is passed with every request, enabling follow-up prompts like "make it more upbeat" to work correctly. The Anthropic API key and Spotify credentials never touch the frontend.
+
+---
+
 ## Environment Variables
 
 | Variable | Location | Description |
@@ -154,6 +177,7 @@ The client secret never touches the frontend — all token exchange happens serv
 | `SPOTIFY_CLIENT_ID` | backend `.env` | Your Spotify app client ID |
 | `SPOTIFY_CLIENT_SECRET` | backend `.env` | Your Spotify app client secret |
 | `SPOTIFY_REDIRECT_URI` | backend `.env` | Must match Spotify Dashboard setting |
+| `ANTHROPIC_API_KEY` | backend `.env` | Your Anthropic API key |
 | `VITE_SPOTIFY_CLIENT_ID` | frontend `.env` | Your Spotify app client ID |
 | `VITE_REDIRECT_URI` | frontend `.env` | Must match Spotify Dashboard setting |
 
@@ -164,6 +188,8 @@ The client secret never touches the frontend — all token exchange happens serv
 - Spotify access tokens expire after 1 hour. The app stores the refresh token but token refresh is not yet automated — you will need to log in again after expiry.
 - Spotify's API returns a maximum of 50 results per request. The app makes two requests (offset 0 and offset 50) and combines them for up to 100 results. Actual results depend on your listening history.
 - The `user-top-read`, `user-read-private`, and `user-read-email` scopes are required.
+- The AI chat uses Spotify's public search endpoint with Client Credentials — no user login is required for that feature.
+- Claude occasionally recommends tracks that don't exist or gets titles slightly wrong. These are silently skipped, which is why 12-15 tracks are requested to reliably return ~10 results.
 
 ---
 
@@ -171,8 +197,6 @@ The client secret never touches the frontend — all token exchange happens serv
 
 <img width="2555" height="1271" alt="image" src="https://github.com/user-attachments/assets/62d917d7-31d5-4ac8-afbc-cd05c4f0c859" />
 <img width="2559" height="1116" alt="image" src="https://github.com/user-attachments/assets/03c35caa-06e6-4936-b44f-380ca98fdc03" />
-
-
 
 ---
 
