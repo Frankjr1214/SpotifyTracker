@@ -4,6 +4,9 @@ from pydantic import BaseModel
 import httpx
 import os
 from dotenv import load_dotenv
+from chatbot.claude import generate_track_recommendations, generate_response
+from chatbot.spotify import get_tracks
+from chatbot.models import ChatRequest
 
 load_dotenv()
 
@@ -60,3 +63,14 @@ async def callback(data: CodeRequest):
         raise HTTPException(status_code=response.status_code, detail=response.json())
 
     return response.json()
+
+
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    recommendations = generate_track_recommendations(request.message)
+    tracks =await get_tracks(recommendations)
+    reply = generate_response(request.message, tracks, request.history)
+    return {
+        "reply": reply,
+        "tracks": tracks
+    }
