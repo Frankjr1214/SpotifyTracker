@@ -197,6 +197,8 @@ Conversation history is passed with every request, enabling follow-up prompts li
 
 <img width="2555" height="1271" alt="image" src="https://github.com/user-attachments/assets/62d917d7-31d5-4ac8-afbc-cd05c4f0c859" />
 <img width="2559" height="1116" alt="image" src="https://github.com/user-attachments/assets/03c35caa-06e6-4936-b44f-380ca98fdc03" />
+<img width="2540" height="1062" alt="image" src="https://github.com/user-attachments/assets/53762253-ee9b-4a4e-987b-e8eac9123951" />
+
 
 ---
 
