@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Tracks from "./pages/Tracks";
 import Artists from "./pages/Artists";
 import Callback from "./pages/Callback";
+import Chat from "./pages/Chat";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Link to="/">Home</Link> |{" "}
         <Link to="/tracks">Top Tracks</Link> |{" "}
         <Link to="/artists">Top Artists</Link>
+        <Link to="/chat">Music Chat</Link>
       </nav>
 
       <Routes>
@@ -19,6 +21,7 @@ function App() {
         <Route path="/tracks" element={<Tracks  />} />
         <Route path="/artists" element={<Artists />} />
         <Route path="/callback" element={<Callback />} />
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </div>
   );
